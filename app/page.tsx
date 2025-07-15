@@ -39,14 +39,16 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-white px-4 py-10">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <h1 className="text-4xl font-bold text-center text-zinc-800">
-          Blog Summariser
-        </h1>
-        <p className="text-center text-zinc-600 text-base">
-          Paste a blog URL to generate a short summary in English and Urdu.
-        </p>
+    <main className="min-h-screen bg-gray-50 px-4 py-10">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold text-zinc-800">
+            📰 Blog Summariser
+          </h1>
+          <p className="text-zinc-600 text-base">
+            Enter a blog URL to get a short summary in English and Urdu.
+          </p>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Input
@@ -61,30 +63,32 @@ export default function HomePage() {
         </div>
 
         {error && (
-          <p className="text-red-600 text-sm text-center font-medium">{error}</p>
+          <p className="text-red-600 text-sm text-center font-medium">
+            {error}
+          </p>
         )}
 
         {(summary || urduSummary) && (
-          <Card className="bg-zinc-50 border border-zinc-200 shadow-sm">
+          <Card className="bg-white border border-zinc-200 shadow-sm">
             <CardContent className="p-6 space-y-6">
               <div>
                 <h2 className="text-xl font-semibold text-zinc-800 mb-2">
-                  English Summary
+                  📘 English Summary
                 </h2>
                 <Textarea
                   value={summary}
                   readOnly
-                  className="h-32 resize-none text-sm"
+                  className="h-36 resize-none text-sm bg-zinc-50"
                 />
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-zinc-800 mb-2">
-                  Urdu Translation
+                  🇵🇰 Urdu Translation
                 </h2>
                 <Textarea
                   value={urduSummary}
                   readOnly
-                  className="h-32 resize-none text-sm font-urdu"
+                  className="h-36 resize-none text-sm font-[Noto Nastaliq Urdu] bg-zinc-50"
                 />
               </div>
             </CardContent>
