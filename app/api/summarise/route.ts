@@ -117,11 +117,18 @@ export async function POST(req: NextRequest) {
 
     html = response.data;
     } catch (err) {
-    const error = err as Error;
-    console.error("API Error:", error.message || error);
-    console.error("Proxy axios.get failed:", err.message || err);
-    return NextResponse.json({ error: "Failed to fetch blog HTML via proxy." }, { status: 500 });
-    }
+  if (err instanceof Error) {
+    console.error("API Error:", err.message);
+    console.error("Proxy axios.get failed:", err.message);
+  } else {
+    console.error("API Error (non-Error type):", err);
+  }
+
+  return NextResponse.json(
+    { error: "Failed to fetch blog HTML via proxy." },
+    { status: 500 }
+  );
+}
 
     // Extract visible blog content
     // const dom = new JSDOM(html, {
