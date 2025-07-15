@@ -109,16 +109,27 @@ export async function POST(req: NextRequest) {
     // Fetch blog page HTML
     let html = "";
     try {
-    console.log("Fetching via ThingProxy:", url);
-    const proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`;
-    const response = await axios.get(proxyUrl, {
+  console.log("Fetching via AllOrigins:", url);
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  const response = await axios.get(proxyUrl, {
     timeout: 10000,
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-      Accept: "text/html,application/xhtml+xml",
-    },
   });
+
+  html = response.data.contents;
+} catch (err) {
+  if (err instanceof Error) {
+    console.error("API Error:", err.message);
+    console.error("Proxy axios.get failed:", err.message);
+  } else {
+    console.error("API Error (non-Error type):", err);
+  }
+
+  return NextResponse.json(
+    { error: "Failed to fetch blog HTML via proxy." },
+    { status: 500 }
+  );
+}
+
 
 
     html = response.data;
