@@ -65,7 +65,6 @@ const urduDict: Record<string, string> = {
   "guide": "رہنما",
   "image": "تصویر",
   "print": "پرنٹ",
-  "content": "مواد",
   "information": "معلومات",
   "poster": "پوسٹر",
   "section": "حصہ"
