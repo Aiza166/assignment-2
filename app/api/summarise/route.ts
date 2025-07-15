@@ -118,30 +118,32 @@ export async function POST(req: NextRequest) {
     });
 
     html = response.data;
-    } catch (err: any) {
+    } catch (err) {
+    const error = err as Error;
+    console.error("API Error:", error.message || error);
     console.error("Proxy axios.get failed:", err.message || err);
     return NextResponse.json({ error: "Failed to fetch blog HTML via proxy." }, { status: 500 });
     }
 
     // Extract visible blog content
-    const dom = new JSDOM(html, {
-        resources: "usable",
-        runScripts: "dangerously",
-        pretendToBeVisual: false,
-        includeNodeLocations: false,
-        beforeParse(window) {
-            // Disable style parsing to avoid CSS crash
-            window.document.createElement = new Proxy(window.document.createElement, {
-            apply(target, thisArg, argArray) {
-                const el = Reflect.apply(target, thisArg, argArray);
-                if (argArray[0].toLowerCase() === "style") {
-                el.textContent = "";
-                }
-                return el;
-            },
-            });
-        },
-    });
+    // const dom = new JSDOM(html, {
+    //     resources: "usable",
+    //     runScripts: "dangerously",
+    //     pretendToBeVisual: false,
+    //     includeNodeLocations: false,
+    //     beforeParse(window) {
+    //         // Disable style parsing to avoid CSS crash
+    //         window.document.createElement = new Proxy(window.document.createElement, {
+    //         apply(target, thisArg, argArray) {
+    //             const el = Reflect.apply(target, thisArg, argArray);
+    //             if (argArray[0].toLowerCase() === "style") {
+    //             el.textContent = "";
+    //             }
+    //             return el;
+    //         },
+    //         });
+    //     },
+    // });
 
     // Extract clean article content using Readability
     const fullText = await extractMainText(html);
