@@ -38,7 +38,9 @@ export default function HomePage() {
 
     setSummary(data.summary);
     setUrduSummary(data.urdu);
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as Error;
+    console.error("Network/JS error:", error.message || error);
     console.error("Network/JS error:", err);
     setError(err.message || "Network error");
   } finally {
