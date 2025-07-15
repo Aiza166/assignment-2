@@ -4,6 +4,10 @@ This is a full-stack web application that takes a blog URL as input, scrapes the
 
 Built as Assignment 2 for Nexium's internship program.
 
+## Demo:
+<img width="1558" height="974" alt="image" src="https://github.com/user-attachments/assets/be13e6a8-efd5-408d-8bee-42b019522039" />
+
+
 ## Features
 
 - Input a public blog URL.
