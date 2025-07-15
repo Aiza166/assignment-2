@@ -112,8 +112,14 @@ export async function POST(req: NextRequest) {
     console.log("Fetching via ThingProxy:", url);
     const proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`;
     const response = await axios.get(proxyUrl, {
-        timeout: 10000,
-    });
+    timeout: 10000,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+      Accept: "text/html,application/xhtml+xml",
+    },
+  });
+
 
     html = response.data;
     } catch (err) {
