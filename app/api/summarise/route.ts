@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { JSDOM } from "jsdom";
 import { supabase } from "@/lib/supabase";
 import { connectToMongo } from "@/lib/mongo";
 import mongoose from "mongoose";
