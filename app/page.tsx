@@ -14,29 +14,37 @@ export default function HomePage() {
   const [error, setError] = useState("");
 
   const handleSummarize = async () => {
-    if (!url) return;
-    setLoading(true);
-    setError("");
-    setSummary("");
-    setUrduSummary("");
+  if (!url) return;
+  setLoading(true);
+  setError("");
+  setSummary("");
+  setUrduSummary("");
 
-    try {
-      const res = await fetch("/api/summarise", {
-        method: "POST",
-        body: JSON.stringify({ url }),
-        headers: { "Content-Type": "application/json" },
-      });
+  try {
+    const res = await fetch("/api/summarise", {
+      method: "POST",
+      body: JSON.stringify({ url }),
+      headers: { "Content-Type": "application/json" },
+    });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      setSummary(data.summary);
-      setUrduSummary(data.urdu);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Backend error:", data);
+      setError(data.error || "Server error — check console");
       setLoading(false);
+      return;
     }
-  };
+
+    setSummary(data.summary);
+    setUrduSummary(data.urdu);
+  } catch (err: any) {
+    console.error("Network/JS error:", err);
+    setError(err.message || "Network error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
@@ -90,6 +98,10 @@ export default function HomePage() {
                   readOnly
                   className="h-36 resize-none text-sm font-[Noto Nastaliq Urdu] bg-zinc-50"
                 />
+                <p className="text-xs text-zinc-500 italic mt-1">
+                  Note: Urdu translation uses a basic static dictionary. Untranslated words are shown in [brackets].
+                </p>
+
               </div>
             </CardContent>
           </Card>

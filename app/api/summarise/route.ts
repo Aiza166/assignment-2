@@ -4,6 +4,7 @@ import { JSDOM } from "jsdom";
 import { supabase } from "@/lib/supabase";
 import { connectToMongo } from "@/lib/mongo";
 import mongoose from "mongoose";
+import { extractMainText } from "@/lib/extractMainText"; 
 
 // Urdu dictionary (manual static translation)
 const urduDict: Record<string, string> = {
@@ -53,7 +54,22 @@ const urduDict: Record<string, string> = {
   "modern": "جدید",
   "and": "اور",
   "for": "کے لیے",
-  "with": "کے ساتھ"
+  "with": "کے ساتھ",
+  "layout": "ترتیب",
+  "grid": "گرڈ",
+  "flexbox": "فلیکس باکس",
+  "browser": "براؤزر",
+  "support": "مدد",
+  "properties": "خصوصیات",
+  "prefixing": "پیش نامہ",
+  "example": "مثال",
+  "guide": "رہنما",
+  "image": "تصویر",
+  "print": "پرنٹ",
+  "content": "مواد",
+  "information": "معلومات",
+  "poster": "پوسٹر",
+  "section": "حصہ"
 };
 
 // MongoDB schema
@@ -75,9 +91,11 @@ function generateSummary(text: string): string {
 function translateToUrdu(text: string): string {
   return text
     .split(" ")
-    .map(word => {
+    .map((word) => {
       const cleaned = word.toLowerCase().replace(/[^a-z]/gi, "");
-      return urduDict[cleaned] || word;
+      return urduDict[cleaned]
+        ? urduDict[cleaned]
+        : `[${word}]`; // show untranslated words in brackets
     })
     .join(" ");
 }
@@ -91,22 +109,46 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch blog page HTML
-    const { data: html } = await axios.get(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
-        Accept: "text/html",
-      },
+    let html = "";
+    try {
+    console.log("Fetching via ThingProxy:", url);
+    const proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`;
+    const response = await axios.get(proxyUrl, {
+        timeout: 10000,
     });
 
+    html = response.data;
+    } catch (err: any) {
+    console.error("Proxy axios.get failed:", err.message || err);
+    return NextResponse.json({ error: "Failed to fetch blog HTML via proxy." }, { status: 500 });
+    }
+
     // Extract visible blog content
-    const dom = new JSDOM(html);
-    const doc = dom.window.document;
-    const main = doc.querySelector("article") || doc.querySelector("main") || doc.body;
-    const fullText = main.textContent?.replace(/\s+/g, " ").trim() || "";
+    const dom = new JSDOM(html, {
+        resources: "usable",
+        runScripts: "dangerously",
+        pretendToBeVisual: false,
+        includeNodeLocations: false,
+        beforeParse(window) {
+            // Disable style parsing to avoid CSS crash
+            window.document.createElement = new Proxy(window.document.createElement, {
+            apply(target, thisArg, argArray) {
+                const el = Reflect.apply(target, thisArg, argArray);
+                if (argArray[0].toLowerCase() === "style") {
+                el.textContent = "";
+                }
+                return el;
+            },
+            });
+        },
+    });
+
+    // Extract clean article content using Readability
+    const fullText = await extractMainText(html);
+    console.log("Extracted blog text snippet:", fullText.slice(0, 200));
 
     if (!fullText || fullText.length < 50) {
-      return NextResponse.json({ error: "Blog content too short." }, { status: 400 });
+    return NextResponse.json({ error: "Blog content too short." }, { status: 400 });
     }
 
     // Generate summaries
