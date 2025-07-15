@@ -106,16 +106,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
 
-    // Fetch blog page HTML
-    let html = "";
-    try {
+    // Fetch blog page HTML via AllOrigins
+let html = "";
+try {
   console.log("Fetching via AllOrigins:", url);
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
   const response = await axios.get(proxyUrl, {
-    timeout: 10000,
+    timeout: 15000,
+    headers: {
+      "Accept": "text/html"
+    }
   });
 
-  html = response.data.contents;
+  html = response.data;
 } catch (err) {
   if (err instanceof Error) {
     console.error("API Error:", err.message);
@@ -130,22 +133,6 @@ export async function POST(req: NextRequest) {
   );
 }
 
-
-
-    html = response.data;
-    } catch (err) {
-  if (err instanceof Error) {
-    console.error("API Error:", err.message);
-    console.error("Proxy axios.get failed:", err.message);
-  } else {
-    console.error("API Error (non-Error type):", err);
-  }
-
-  return NextResponse.json(
-    { error: "Failed to fetch blog HTML via proxy." },
-    { status: 500 }
-  );
-}
 
     // Extract visible blog content
     // const dom = new JSDOM(html, {
